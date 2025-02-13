@@ -4,6 +4,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Preferences.h>
+#include "ivy_nuts_and_bolts.h"
 
 #define BUTTON_PIN 13   // Button to enter AP mode
 #define LED_PIN 2       // LED indicator for AP mode
@@ -68,30 +69,29 @@ void startAPMode() {
     page += "</head><body>";
 
     page += "<div class='container mt-5'>";
-    page += "<h2>IP Local: " + ivy_wifi_last_ip + "</h2><hr>";
-    
-    page += "<h2>Wi-Fi Setup</h2>";
-
-    // Start Wi-Fi Scan
-    int numNetworks = WiFi.scanNetworks();
-    if (numNetworks == 0) {
-      page += "<div class='alert alert-warning'>No se pudo encontrar ninguna red Wi-Fi!</div>";
-    } else {
-      page += "<form action='/set' method='POST' class='form-group'>";
-      page += "<label for='ssid'>Seleccioná tu red Wi-Fi:</label>";
-      page += "<select name='ssid' id='ssid' class='form-control'>";
-      
-      for (int i = 0; i < numNetworks; i++) {
-        page += "<option value='" + WiFi.SSID(i) + "'>" + WiFi.SSID(i) + " (" + 
-                String(WiFi.RSSI(i)) + " dBm)</option>";
+      page += "<h2>IP Local: " + ivy_wifi_last_ip + "</h2><hr>";      
+      page += "<h2>Wi-Fi Setup</h2>";
+      // Start Wi-Fi Scan
+      int numNetworks = WiFi.scanNetworks();
+      if (numNetworks == 0) {
+        page += "<div class='alert alert-warning'>No se pudo encontrar ninguna red Wi-Fi!</div>";
+      } else {
+        page += "<form action='/set' method='POST' class='form-group'>";
+        page += "<label for='ssid'>Seleccioná tu red Wi-Fi:</label>";
+        page += "<select name='ssid' id='ssid' class='form-control'>";
+        
+        for (int i = 0; i < numNetworks; i++) {
+          page += "<option value='" + WiFi.SSID(i) + "'>" + WiFi.SSID(i) + " (" + 
+                  String(WiFi.RSSI(i)) + " dBm)</option>";
+        }
+        
+        page += "</select><br><br>";
+        page += "<label for='password'>Contraseña:</label>";
+        page += "<input type='password' name='password' id='password' class='form-control' required><br><br>";
+        page += "<button type='submit' class='btn btn-primary'>Guardar</button>";
+        page += "</form>";
       }
-      
-      page += "</select><br><br>";
-      page += "<label for='password'>Contraseña:</label>";
-      page += "<input type='password' name='password' id='password' class='form-control' required><br><br>";
-      page += "<button type='submit' class='btn btn-primary'>Guardar</button>";
-      page += "</form>";
-    }
+      page += "<div>" + String(timeinfo.tm_hour) + ":" + String(timeinfo.tm_min) + ":" + String(timeinfo.tm_sec) + "</div>";
 
     page += "</div>";  // End container
     page += "</body></html>";
@@ -147,13 +147,15 @@ void ivy_wifi_begin(){
 
 // ======== Function: Auto-shutdown AP Mode =========
 void ivy_wifi_loop() {
+
+  server.handleClient();
+
   if (startAPFlag) {
     startAPFlag = false;  // Reset flag
     startAPMode();        // Start AP mode safely in the main loop
   }
 
   if (apMode) {
-    server.handleClient();
     if (millis() - apStartTime > AP_TIMEOUT) { // If AP mode is running for 2 minutes
       Serial.println("Timeout: Exiting AP mode.");
       digitalWrite(LED_PIN, LOW); // Turn OFF AP mode indicator LED
