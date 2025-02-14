@@ -1,6 +1,14 @@
 #ifndef IVY_RELAY_H
 #define IVY_RELAY_H
 
+/*
+  Ivy Relay permite controlar relés mapeados a memoria,
+  te ayuda a prender y apagar cosas simplemente diciendo COSA = SI/NO
+  Es importante executar ivy_updateOutlets() periódicamente para que los cambios tomen efecto.
+  Ivy hace ésto por vos en el loop();
+*/
+
+
 #include "Arduino.h"
 
 const int N_OUTLETS = 8;

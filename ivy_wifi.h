@@ -1,6 +1,10 @@
 #ifndef IVY_WIFI_H
 #define IVY_WIFI_H
 
+/*
+  Esto es el horrible codigo que te permite acceder a la pagina de configuracion de credenciales Wi-Fi
+*/
+
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Preferences.h>
@@ -8,14 +12,13 @@
 
 #define BUTTON_PIN 13   // Button to enter AP mode
 #define LED_PIN 2       // LED indicator for AP mode
-#define AP_TIMEOUT 120000 // 2 minutes in milliseconds
 
 Preferences preferences;
 WebServer server(80);
 
 bool apMode = false;
 unsigned long apStartTime = 0;
-String ivy_wifi_last_ip = "---.---.---.---";
+String ivy_wifi_last_ip = "Sin IP";
 
 // ======== Function: Connect to Wi-Fi =========
 void connectToWiFi() {
